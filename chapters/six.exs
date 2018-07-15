@@ -65,3 +65,30 @@ defmodule Chop do
   end
   defp guess_num(actual, target, _) when actual == target, do: IO.puts actual
 end
+
+#6.7
+#パイプ演算子は結果を次の関数の第一引数として渡す(unixのフィルタの考え方が視覚化されているようだ…美しい)
+IO.inspect (1..10) |> Enum.map(&(&1*&1)) |> Enum.filter(&(&1 < 40))
+
+#importもスコープ対象
+defmodule ImportExample do
+  def func1 do
+    List.flatten [1,[2,3],4]
+  end
+  def func2 do
+    import List, only: [flatten: 1]
+    flatten [5,[6,7],8]
+  end
+end
+
+#moduleのトップレベルにだけ@nameで宣言できる 同じ属性に何度も設定可能 定数として使うことが多い
+defmodule Attribute do
+  @attr "one"
+  def first, do: @attr
+  @attr "two"
+  def second, do: @attr
+end
+
+#6.10
+#モジュールの名前はただのアトムに過ぎない(Elixir.というprefixがつく)
+:"Elixir.IO".puts 123
