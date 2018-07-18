@@ -18,12 +18,11 @@ defmodule Main do
   end
 
   def map_set do
-    set1 = Enum.into 1..5, MapSet.new
+    IO.inspect set1 = Enum.into 1..5, MapSet.new
     MapSet.member? set1, 3 # => true
-    set2 = Enum.into 3..8, MapSet.new
-    MapSet.union set1, set2
-    MapSet.difference set1, set2
-    MapSet
+    IO.inspect set2 = Enum.into 3..8, MapSet.new
+    IO.inspect MapSet.union set1, set2
+    IO.inspect MapSet.difference set1, set2
   end
 end
 
