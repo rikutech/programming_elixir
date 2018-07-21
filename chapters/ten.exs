@@ -59,3 +59,15 @@ IO.inspect Stream.repeatedly(fn  -> true end) |> Enum.take(5)
 IO.inspect Stream.iterate(0, &(&1+1)) |> Enum.take(5)
 #フィボナッチ数列の実装 初期値のタプルと関数を渡すと、適用されて1つずつずれていく
 IO.inspect Stream.unfold({0, 1}, fn {f1, f2} -> {f1, {f2, f1+f2}} end) |> Enum.take(15)
+
+#内包表記
+IO.inspect for x <- [1,2,3,4,5], do: x * x
+IO.inspect for x <- [1,2,3,4,5], x < 4, do: x * x
+
+#フィルタに引っかかった場合、後のdoは評価されない
+list8 = [1,2,3,4,5,6,7,8]
+IO.inspect for x <- list8, y <- list8, x >= y, rem(x*y, 10)==0, do: {x,y}
+
+#intoパラメータで内包表記の結果の受け取り方を変えられる
+IO.inspect for x <- ~w{ cat dog }, do: { x, String.upcase(x)} # => [{"cat", "CAT"}, {"dog", "DOG"}]
+IO.inspect for x <- ~w{ cat dog }, into: %{}, do: { x, String.upcase(x)} # => [{"cat", "CAT"}, {"dog", "DOG"}]
