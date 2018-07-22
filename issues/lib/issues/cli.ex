@@ -8,7 +8,9 @@ defmodule Issues.CLI do
   """
 
   def run(argv) do
-    parse_args(argv)
+    argv
+    |> parse_args
+    |> process
   end
 
   def parse_args(argv) do
@@ -22,5 +24,42 @@ defmodule Issues.CLI do
       {_, [user, project], _}        -> {user, project, @default_count}
       _                              -> :help
     end
+  end
+
+  def process(:help) do
+    IO.puts """
+    usage: issues <user> <project> [ count | #{@default_count} ]
+    """
+    System.halt(0)
+  end
+
+  def process({user, project, count}) do
+    #HACK: それぞれのcolumnのmax_lengthを取得してそれに合わせればもっと綺麗にできる
+    IO.puts Issues.GithubIssues.fetch(user, project)
+    |> decode_response
+    |> convert_to_list_of_maps
+    |> sort_into_ascending_order
+    |> Enum.take(count)
+    |> Enum.map(&("#{&1["number"]} | #{&1["created_at"]} | #{&1["title"]}"))
+    |> (&Kernel.++([" #   | created_at           | title", String.duplicate("-", 80)], &1)).()
+    |> Enum.join("\n")
+  end
+
+  def decode_response({:ok, body}), do: body
+
+  def decode_response({:error, error}) do
+    {_, message} = List.keyfind(error, "message", 0)
+    IO.puts "Error fetching from Github: #{message}"
+    System.halt(2)
+  end
+
+  def convert_to_list_of_maps(list) do
+    list
+    |> Enum.map(&Enum.into(&1, Map.new))
+  end
+
+  def sort_into_ascending_order(list_of_issues) do
+    Enum.sort list_of_issues,
+    fn i1, i2 -> i1["created_at"] <= i2["created_at"] end
   end
 end
