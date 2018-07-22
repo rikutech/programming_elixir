@@ -7,7 +7,7 @@ defmodule Issues.CLI do
   table of the last _n_ issues in a github project
   """
 
-  def run(argv) do
+  def main(argv) do
     argv
     |> parse_args
     |> process
@@ -43,6 +43,7 @@ defmodule Issues.CLI do
     |> Enum.map(&("#{&1["number"]} | #{&1["created_at"]} | #{&1["title"]}"))
     |> (&Kernel.++([" #   | created_at           | title", String.duplicate("-", 80)], &1)).()
     |> Enum.join("\n")
+    #|> print_table_for_columns(["number", "created_at", "title"])
   end
 
   def decode_response({:ok, body}), do: body
