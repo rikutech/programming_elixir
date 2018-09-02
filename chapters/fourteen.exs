@@ -4,8 +4,7 @@ defmodule SpawnBasic do
   end
 end
 
-defmodule Spawn2 do
-  def greet do
+defmodule Spawn2 do def greet do
     receive do
       {sender, msg} -> send sender, {:ok, "Hello, #{msg}"}
     end
@@ -74,6 +73,99 @@ defmodule UniqueToken do
     send pid2, {self, "token2"}
     receive do
       token -> IO.puts token
+    end
+  end
+end
+
+
+defmodule Link1 do
+  import :timer, only: [sleep: 1]
+
+  def sad_function do
+    sleep 500
+    exit(:boom)
+  end
+  def run do
+    spawn(Link1, :sad_function, [])
+    receive do
+      msg ->
+        IO.puts "MESSAGE RECEIVED: #{inspect msg}"
+    after 1000 ->
+        IO.puts "Nothing happened as far as I am concerned"
+    end
+  end
+end
+
+defmodule Link2 do
+  import :timer, only: [sleep: 1]
+
+  def sad_function do
+    sleep 500
+    exit(:boom)
+  end
+  def run do
+    spawn_link(Link2, :sad_function, [])
+    receive do
+      msg ->
+        IO.puts "MESSAGE RECEIVED: #{inspect msg}"
+    after 1000 ->
+        IO.puts "Nothing happened as far as I am concerned"
+    end
+  end
+end
+
+defmodule Link3 do
+  import :timer, only: [sleep: 1]
+
+  def sad_function do
+    sleep 500
+    exit(:boom)
+  end
+  def run do
+    Process.flag(:trap_exit, true)
+    spawn_link(Link3, :sad_function, [])
+    receive do
+      msg ->
+        IO.puts "MESSAGE RECEIVED: #{inspect msg}"
+    after 1000 ->
+        IO.puts "Nothing happened as far as I am concerned"
+    end
+  end
+end
+
+
+defmodule Monitor1 do
+  import :timer, only: [sleep: 1]
+
+  def sad_function do
+    sleep 500
+    exit(:boom)
+  end
+
+  def run do
+    res = spawn_monitor(Monitor1, :sad_function, [])
+    IO.puts inspect res
+    receive do
+      msg ->
+        IO.puts "MESSAGE RECEIVED: #{inspect msg}"
+    after 1000 ->
+        IO.puts "Nothing happened as far as I am concerned"
+    end
+  end
+end
+
+defmodule FinishSoonP do
+  import :timer, only: [sleep: 1]
+  def process(sender) do
+    send sender, {}
+    exit(:boom)
+  end
+
+  def run do
+    spawn_link(FinishSoonP, :process, [self])
+    sleep 500
+    receive do
+      obj -> IO.inspect obj
     end
   end
 end
