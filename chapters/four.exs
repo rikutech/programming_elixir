@@ -3,22 +3,23 @@
 
 # タプルにもパターンマッチが使える
 {status, count, action} = {:ok, 42, "next"}
-# => :ok
+
 IO.puts(status)
-# => 42
+# => :ok
 IO.puts(count)
-# => "next"
+# => 42
 IO.puts(action)
+# => "next"
 
 # リスト用演算子
-# => [1,2,3,4,5,6]
 IO.inspect([1, 2, 3] ++ [4, 5, 6])
-# => [1,3]
+# => [1,2,3,4,5,6]
 IO.inspect([1, 2, 3, 4] -- [2, 4])
-# => true
+# => [1,3]
 IO.puts(1 in [1, 2, 3, 4])
-# => false
+# => true
 IO.puts("wombat" in [1, 2, 3, 4])
+# => false
 
 # キーワードリスト　タプルのリストのシンタックスシュガー
 IO.inspect(name: "Dave", city: "Dallas", likes: "Programming")
