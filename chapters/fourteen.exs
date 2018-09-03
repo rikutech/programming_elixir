@@ -154,18 +154,54 @@ defmodule Monitor1 do
   end
 end
 
+#練習問題3
+#結果:sendの第二引数が受け取れる場合と終了したプロセスの情報が見られる場合がある
+#→保証されない
 defmodule FinishSoonP do
   import :timer, only: [sleep: 1]
   def process(sender) do
-    send sender, {}
+    send sender, "message"
     exit(:boom)
   end
 
   def run do
     spawn_link(FinishSoonP, :process, [self])
+    Process.flag(:trap_exit, true)
     sleep 500
     receive do
       obj -> IO.inspect obj
     end
+  end
+end
+
+#練習問題4
+#例外が拾われないとexitするので練習問題3と同じ挙動
+defmodule RaiseP do
+  import :timer, only: [sleep: 1]
+  def process(sender) do
+    send sender, "message"
+    raise "Errrr!!"
+  end
+
+  def run do
+    spawn_link(FinishSoonP, :process, [self])
+    Process.flag(:trap_exit, true)
+    sleep 500
+    receive do
+      obj -> IO.inspect obj
+    end
+  end
+end
+
+defmodule Parallel do
+  def pmap(collection, fun) do
+    me = self
+    collection
+    |> Enum.map(fn (elem) ->
+      spawn_link fn -> (send me, {self, fun.(elem)}) end
+    end)
+    |> Enum.map(fn (pid) ->
+      receive do {^pid, result} -> result end
+    end)
   end
 end
