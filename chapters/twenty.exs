@@ -45,6 +45,53 @@ defmodule Times do
   end
 end
 
+defmodule Math do
+  #[do: {:+, [line: 4], [1, 2]}]
+  #[do: {:+, [line: 6], [1, {:*, [line: 6], [2, 3]}]}]
+  defmacro explain([do: {operator, _, [lhs, rhs]}]) do
+    _explain(operator, [lhs, rhs], acc)
+  end
+
+  defp _explain(_, [{_, _, _}, {_, _, _}], _) do
+    raise "両辺が式はむずすぎるから勘弁してくれ！！！！"
+  end
+
+  defp _explain(opr, [lnum, {next_opr, _, [lhs, rhs]}], acc) do
+    _explain(opr, [lnum, _explain(next_opr, [lhs, rhs], acc)])
+  end
+
+  defp _explain({opr, [lnum, rnum]}, acc) do
+    _explain_str(opr, [lnum, rnum], acc)
+  end
+
+  defp _explain({operator, [lhs, rhs]}, acc) do
+    cond do
+      is_number(lhs) && is_number(rhs) ->
+        return _explain_str(operator, acc)
+      is_number(lhs) ->
+        return _explain({operator, [lhs, rhs]}, _explain_str(rhs))
+      is_number(rhs) ->
+        return
+      true ->
+        raise "対応してません！！！！！！"
+        return
+    end
+  end
+
+  defp _explain_str(:+, [lnum, rnum], acc) when acc == "", do: "Add #{lnum} to #{rnum}"
+  defp _explain_str(:-, [lnum, rnum], acc) when acc == "", do: "Subtract #{rnum} from #{lnum}"
+  defp _explain_str(:*, [lnum, rnum], acc) when acc == "", do: "Multiply #{lnum} and #{rnum}"
+  defp _explain_str(:/, [lnum, rnum], acc) when acc == "", do: "Divide #{lnum} by #{rnum}"
+  defp _explain_str(:+, [_lnum, rnum], acc) do: "#{acc}, then add #{rnum}"
+  defp _explain_str(:-, [_lnum, rnum], acc) do: "#{acc}, then subtract #{rnum}"
+  defp _explain_str(:+, [_lnum, rnum], acc) do: "#{acc}, then multiply #{rnum}"
+  defp _explain_str(:+, [_lnum, rnum], acc) do: "#{acc}, then divide by #{rnum}"
+
+  defp _explain([do: expression{:+, _, [lhs, rhs]}]) do
+  end
+
+end
+
 #マクロは自分自身のスコープとquoteしたマクロのボディのスコープを持つ
 #→使用元のスコープを汚すことはない(この挙動をオフにする方法もあるらしい。。。)
 defmodule Scope do
