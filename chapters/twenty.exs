@@ -49,6 +49,7 @@ defmodule Math do
   #[do: {:+, [line: 4], [1, 2]}]
   #[do: {:+, [line: 6], [1, {:*, [line: 6], [2, 3]}]}]
   defmacro explain([do: {operator, _, [lhs, rhs]}]) do
+    acc = ""
     _explain(operator, [lhs, rhs], acc)
   end
 
@@ -56,30 +57,26 @@ defmodule Math do
     raise "両辺が式はむずすぎるから勘弁してくれ！！！！"
   end
 
-  #lかrの式が解決できるとわかったらstr出して反対側と計算結果を次にぶっこんでaccは増やす！
   defp _explain(opr, [lnum, {next_opr, _, [lhs, rhs]}], acc) do
-    _explain(opr, [lnum, _explain(next_opr, [lhs, rhs], acc)])
+    _explain(next_opr, [lhs, rhs], explain_str(opr, [lnum]) <> acc)
   end
 
-  defp _explain(opr, [{next_opr, _, [lhs, rhs], rnum}], acc) do
+  defp _explain(opr, [{next_opr, _, [lhs, rhs]}, rnum], acc) do
+    _explain(next_opr, [lhs, rhs], explain_str(opr, [rnum]) <> acc)
   end
 
-  defp _explain({opr, [lnum, rnum]}, acc) do
-    _explain_str(opr, [lnum, rnum], acc)
+  defp _explain(opr, [lnum, rnum], acc) do
+    explain_str_prefix(opr, [lnum, rnum]) <> acc
   end
 
-  defp _explain_str(:+, [lnum, rnum], acc) when acc == "", do: "Add #{lnum} to #{rnum}"
-  defp _explain_str(:-, [lnum, rnum], acc) when acc == "", do: "Subtract #{rnum} from #{lnum}"
-  defp _explain_str(:*, [lnum, rnum], acc) when acc == "", do: "Multiply #{lnum} and #{rnum}"
-  defp _explain_str(:/, [lnum, rnum], acc) when acc == "", do: "Divide #{lnum} by #{rnum}"
-  defp _explain_str(:+, [_lnum, rnum], acc) do: "#{acc}, then add #{rnum}"
-  defp _explain_str(:-, [_lnum, rnum], acc) do: "#{acc}, then subtract #{rnum}"
-  defp _explain_str(:+, [_lnum, rnum], acc) do: "#{acc}, then multiply #{rnum}"
-  defp _explain_str(:+, [_lnum, rnum], acc) do: "#{acc}, then divide by #{rnum}"
-
-  defp _explain([do: expression{:+, _, [lhs, rhs]}]) do
-  end
-
+  defp explain_str_prefix(:+, [lnum, rnum]), do: "Add #{lnum} to #{rnum}"
+  defp explain_str_prefix(:-, [lnum, rnum]), do: "Subtract #{rnum} from #{lnum}"
+  defp explain_str_prefix(:*, [lnum, rnum]), do: "Multiply #{lnum} and #{rnum}"
+  defp explain_str_prefix(:/, [lnum, rnum]), do: "Divide #{lnum} by #{rnum}"
+  defp explain_str(:+, [num]), do: ", then add #{num}"
+  defp explain_str(:-, [num]), do: ", then subtract #{num}"
+  defp explain_str(:*, [num]), do: ", then multiply #{num}"
+  defp explain_str(:/, [num]), do: ", then divide by #{num}"
 end
 
 #マクロは自分自身のスコープとquoteしたマクロのボディのスコープを持つ
