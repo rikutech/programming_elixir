@@ -45,9 +45,7 @@ defmodule Times do
   end
 end
 
-defmodule Math do
-  #[do: {:+, [line: 4], [1, 2]}]
-  #[do: {:+, [line: 6], [1, {:*, [line: 6], [2, 3]}]}]
+defmodule Explain do
   defmacro explain([do: {operator, _, [lhs, rhs]}]) do
     acc = ""
     _explain(operator, [lhs, rhs], acc)
