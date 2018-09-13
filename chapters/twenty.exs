@@ -56,26 +56,16 @@ defmodule Math do
     raise "両辺が式はむずすぎるから勘弁してくれ！！！！"
   end
 
+  #lかrの式が解決できるとわかったらstr出して反対側と計算結果を次にぶっこんでaccは増やす！
   defp _explain(opr, [lnum, {next_opr, _, [lhs, rhs]}], acc) do
     _explain(opr, [lnum, _explain(next_opr, [lhs, rhs], acc)])
   end
 
-  defp _explain({opr, [lnum, rnum]}, acc) do
-    _explain_str(opr, [lnum, rnum], acc)
+  defp _explain(opr, [{next_opr, _, [lhs, rhs], rnum}], acc) do
   end
 
-  defp _explain({operator, [lhs, rhs]}, acc) do
-    cond do
-      is_number(lhs) && is_number(rhs) ->
-        return _explain_str(operator, acc)
-      is_number(lhs) ->
-        return _explain({operator, [lhs, rhs]}, _explain_str(rhs))
-      is_number(rhs) ->
-        return
-      true ->
-        raise "対応してません！！！！！！"
-        return
-    end
+  defp _explain({opr, [lnum, rnum]}, acc) do
+    _explain_str(opr, [lnum, rnum], acc)
   end
 
   defp _explain_str(:+, [lnum, rnum], acc) when acc == "", do: "Add #{lnum} to #{rnum}"
